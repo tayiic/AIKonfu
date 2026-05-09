@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IP 纯净度检测 — AIKonfu</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            background: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', 'Segoe UI', Roboto, sans-serif;
+            color: #1d1d1f;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 40px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #1d1d1f;
+            font-size: 0.9375rem;
+            font-weight: 500;
+            letter-spacing: -0.01em;
+            transition: opacity 0.3s;
+        }
+
+        nav a:hover {
+            opacity: 0.6;
+        }
+
+        .nav-brand {
+            font-size: 1.0625rem;
+            font-weight: 600;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+        }
+
+        main {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 80px 40px 120px;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 64px;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 600;
+            letter-spacing: -0.03em;
+            margin-bottom: 12px;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            font-weight: 400;
+            color: #86868b;
+            letter-spacing: -0.01em;
+        }
+
+        .ip-input-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 48px;
+        }
+
+        .ip-input-section input {
+            width: 340px;
+            padding: 14px 20px;
+            font-size: 1.0625rem;
+            font-family: inherit;
+            font-weight: 400;
+            letter-spacing: 0.02em;
+            border: 1px solid #d2d2d7;
+            border-radius: 12px;
+            outline: none;
+            text-align: center;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .ip-input-section input:focus {
+            border-color: #0071e3;
+            box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.1);
+        }
+
+        .ip-input-section input::placeholder {
+            color: #c7c7cc;
+        }
+
+        .btn-check {
+            padding: 14px 28px;
+            font-size: 1.0625rem;
+            font-family: inherit;
+            font-weight: 500;
+            letter-spacing: -0.01em;
+            color: #ffffff;
+            background: #0071e3;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn-check:hover {
+            background: #0077ed;
+        }
+
+        .btn-check:active {
+            background: #006edb;
+        }
+
+        .btn-check:disabled {
+            background: #d2d2d7;
+            cursor: not-allowed;
+        }
+
+        .result-area {
+            display: none;
+        }
+
+        .result-area.visible {
+            display: block;
+            animation: fadeIn 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+        }
+
+        .score-card {
+            text-align: center;
+            padding: 56px 40px;
+            background: #fbfbfd;
+            border-radius: 20px;
+            margin-bottom: 40px;
+        }
+
+        .score-ring {
+            position: relative;
+            width: 180px;
+            height: 180px;
+            margin: 0 auto 24px;
+        }
+
+        .score-ring svg {
+            transform: rotate(-90deg);
+        }
+
+        .score-ring .bg {
+            fill: none;
+            stroke: #e8e8ed;
+            stroke-width: 8;
+        }
+
+        .score-ring .fg {
+            fill: none;
+            stroke-width: 8;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94), stroke 0.3s;
+        }
+
+        .score-value {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2.5rem;
+            font-weight: 600;
+            letter-spacing: -0.03em;
+        }
+
+        .score-label {
+            font-size: 1.5rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            margin-bottom: 8px;
+        }
+
+        .score-desc {
+            font-size: 1rem;
+            font-weight: 400;
+            color: #86868b;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 40px;
+        }
+
+        .info-card {
+            padding: 24px;
+            background: #fbfbfd;
+            border-radius: 16px;
+        }
+
+        .info-card .label {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #86868b;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 8px;
+        }
+
+        .info-card .value {
+            font-size: 1.0625rem;
+            font-weight: 500;
+            letter-spacing: -0.01em;
+            word-break: break-all;
+        }
+
+        .flags-section {
+            margin-bottom: 40px;
+        }
+
+        .flags-section h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            margin-bottom: 16px;
+        }
+
+        .flags-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .flag-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 20px;
+            background: #fbfbfd;
+            border-radius: 12px;
+        }
+
+        .flag-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .flag-dot.clean {
+            background: #34c759;
+        }
+
+        .flag-dot.warn {
+            background: #ff9f0a;
+        }
+
+        .flag-dot.danger {
+            background: #ff3b30;
+        }
+
+        .flag-dot.unknown {
+            background: #c7c7cc;
+        }
+
+        .flag-name {
+            font-size: 0.9375rem;
+            font-weight: 500;
+        }
+
+        .flag-status {
+            margin-left: auto;
+            font-size: 0.8125rem;
+            font-weight: 400;
+            color: #86868b;
+        }
+
+        .authority-section h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            margin-bottom: 8px;
+        }
+
+        .authority-section > p {
+            font-size: 0.9375rem;
+            color: #86868b;
+            margin-bottom: 20px;
+        }
+
+        .authority-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .authority-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 20px;
+            background: #fbfbfd;
+            border-radius: 12px;
+            text-decoration: none;
+            color: #1d1d1f;
+            transition: background 0.2s, transform 0.2s;
+        }
+
+        .authority-card:hover {
+            background: #f5f5f7;
+            transform: translateY(-1px);
+        }
+
+        .authority-card .name {
+            font-size: 0.9375rem;
+            font-weight: 500;
+        }
+
+        .authority-card .desc {
+            font-size: 0.75rem;
+            color: #86868b;
+            margin-top: 2px;
+        }
+
+        .authority-card .arrow {
+            font-size: 1.25rem;
+            color: #c7c7cc;
+            transition: color 0.2s;
+        }
+
+        .authority-card:hover .arrow {
+            color: #0071e3;
+        }
+
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.85);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .loading-overlay.active {
+            display: flex;
+        }
+
+        .spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid #e8e8ed;
+            border-top-color: #0071e3;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        .loading-text {
+            font-size: 0.9375rem;
+            color: #86868b;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 768px) {
+            main {
+                padding: 48px 20px 80px;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .ip-input-section {
+                flex-direction: column;
+            }
+
+            .ip-input-section input {
+                width: 100%;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .flags-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .authority-grid {
+                grid-template-columns: 1fr;
+            }
+
+            nav {
+                padding: 16px 20px;
+            }
+
+            .nav-links {
+                gap: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html" class="nav-brand">AIKonfu</a>
+        <div class="nav-links">
+            <a href="index.html">首页</a>
+            <a href="ip-check.html">IP 检测</a>
+        </div>
+    </nav>
+
+    <main>
+        <div class="hero">
+            <h1>IP 纯净度检测</h1>
+            <p>聚合权威数据源，一键评估 IP 安全状态</p>
+        </div>
+
+        <div class="ip-input-section">
+            <input type="text" id="ipInput" placeholder="输入 IP 地址或留空自动检测" spellcheck="false" autocomplete="off">
+            <button class="btn-check" id="btnCheck" onclick="startCheck()">开始检测</button>
+        </div>
+
+        <div class="result-area" id="resultArea">
+            <div class="score-card">
+                <div class="score-ring">
+                    <svg width="180" height="180" viewBox="0 0 180 180">
+                        <circle class="bg" cx="90" cy="90" r="78"></circle>
+                        <circle class="fg" id="scoreFg" cx="90" cy="90" r="78"></circle>
+                    </svg>
+                    <div class="score-value" id="scoreValue">—</div>
+                </div>
+                <div class="score-label" id="scoreLabel">检测中</div>
+                <div class="score-desc" id="scoreDesc"></div>
+            </div>
+
+            <div class="info-grid" id="infoGrid"></div>
+
+            <div class="flags-section">
+                <h2>风险指标</h2>
+                <div class="flags-grid" id="flagsGrid"></div>
+            </div>
+
+            <div class="authority-section">
+                <h2>权威来源验证</h2>
+                <p>点击前往各权威站点查看详细报告</p>
+                <div class="authority-grid" id="authorityGrid"></div>
+            </div>
+        </div>
+    </main>
+
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+        <div class="loading-text" id="loadingText">正在检测...</div>
+    </div>
+
+    <script>
+        const CIRCUMFERENCE = 2 * Math.PI * 78;
+
+        const AUTHORITIES = [
+            { name: 'AbuseIPDB', desc: '滥用报告与黑名单', url: 'https://www.abuseipdb.com/check/' },
+            { name: 'VirusTotal', desc: '多引擎威胁分析', url: 'https://www.virustotal.com/gui/ip-address/' },
+            { name: 'Talos Intelligence', desc: 'Cisco 威誉评级', url: 'https://talosintelligence.com/reputation_center/lookup?search=' },
+            { name: 'Spamhaus', desc: '垃圾邮件黑名单', url: 'https://check.spamhaus.org/listed?ip=' },
+            { name: 'Shodan', desc: '互联网暴露面扫描', url: 'https://www.shodan.io/host/' },
+            { name: 'MXToolbox', desc: '邮件与黑名单综合检测', url: 'https://mxtoolbox.com/SuperTool.aspx?action=blacklist%3a' },
+            { name: 'IPQS', desc: '代理/VPN/欺诈评分', url: 'https://www.ipqualityscore.com/free-ip-lookup-proxy-vpn-test/lookup/' },
+            { name: 'Robtex', desc: 'DNS 与网络拓扑', url: 'https://www.robtex.com/ip-lookup/' }
+        ];
+
+        const HOSTING_KEYWORDS = [
+            'amazon', 'aws', 'google cloud', 'gcp', 'microsoft', 'azure',
+            'digitalocean', 'linode', 'akamai', 'vultr', 'hetzner', 'ovh',
+            'cloudflare', 'alibaba', 'tencent', 'huawei', 'oracle',
+            'digital', 'server', 'hosting', 'cloud', 'datacenter', 'data center',
+            'vps', 'dedicated', 'colocation', 'idc', 'bandwidth',
+            'upcloud', 'kamatera', 'scaleway', 'contabo', 'hostwinds',
+            'choopa', 'quadranet', 'leaseweb', 'online sas', 'ovh',
+            'cogent', 'zenlayer', 'm247', 'datacamp', 'psychz'
+        ];
+
+        const VPN_KEYWORDS = [
+            'vpn', 'proxy', 'tunnel', 'nordvpn', 'expressvpn', 'surfshark',
+            'mullvad', 'protonvpn', 'cyberghost', 'private internet',
+            'hide.me', 'ipvanish', 'purevpn', 'astrill'
+        ];
+
+        function init() {
+            const fg = document.getElementById('scoreFg');
+            fg.style.strokeDasharray = CIRCUMFERENCE;
+            fg.style.strokeDashoffset = CIRCUMFERENCE;
+        }
+
+        async function fetchJSON(url, timeout = 8000) {
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), timeout);
+            try {
+                const res = await fetch(url, { signal: controller.signal });
+                clearTimeout(timer);
+                if (!res.ok) return null;
+                return await res.json();
+            } catch {
+                clearTimeout(timer);
+                return null;
+            }
+        }
+
+        function isHostingISP(org, isp) {
+            const combined = (org + ' ' + isp).toLowerCase();
+            return HOSTING_KEYWORDS.some(kw => combined.includes(kw));
+        }
+
+        function isVPNISP(org, isp) {
+            const combined = (org + ' ' + isp).toLowerCase();
+            return VPN_KEYWORDS.some(kw => combined.includes(kw));
+        }
+
+        function calculatePurity(data) {
+            let score = 100;
+            const flags = [];
+
+            if (!data) {
+                return { score: null, flags: [{ name: '数据获取', status: 'unknown', text: '无法获取' }] };
+            }
+
+            const org = (data.org || '').toLowerCase();
+            const isp = (data.isp || '').toLowerCase();
+            const aso = (data.aso || '').toLowerCase();
+
+            if (isVPNISP(org, isp)) {
+                score -= 35;
+                flags.push({ name: 'VPN / 代理', status: 'danger', text: '检测到' });
+            } else {
+                flags.push({ name: 'VPN / 代理', status: 'clean', text: '未检测到' });
+            }
+
+            if (isHostingISP(org, isp) || isHostingISP(aso, '')) {
+                score -= 20;
+                flags.push({ name: '数据中心 IP', status: 'warn', text: '是' });
+            } else {
+                flags.push({ name: '数据中心 IP', status: 'clean', text: '否（住宅 IP）' });
+            }
+
+            if (data.country === 'CN') {
+                flags.push({ name: '地区', status: 'clean', text: data.country_name || '中国' });
+            } else {
+                flags.push({ name: '地区', status: 'clean', text: data.country_name || data.country || '—' });
+            }
+
+            const asnStr = data.asn || data.as || '';
+            if (asnStr) {
+                flags.push({ name: 'ASN', status: 'clean', text: asnStr });
+            }
+
+            flags.push({ name: '黑名单检查', status: 'unknown', text: '请查看权威来源' });
+            flags.push({ name: '邮件信誉', status: 'unknown', text: '请查看权威来源' });
+            flags.push({ name: '威胁情报', status: 'unknown', text: '请查看权威来源' });
+            flags.push({ name: '暴露面', status: 'unknown', text: '请查看 Shodan' });
+
+            score = Math.max(0, Math.min(100, score));
+            return { score, flags };
+        }
+
+        function renderScore(score) {
+            const fg = document.getElementById('scoreFg');
+            const valueEl = document.getElementById('scoreValue');
+            const labelEl = document.getElementById('scoreLabel');
+            const descEl = document.getElementById('scoreDesc');
+
+            if (score === null) {
+                valueEl.textContent = '—';
+                labelEl.textContent = '数据不足';
+                descEl.textContent = '请通过下方权威来源手动验证';
+                fg.style.stroke = '#c7c7cc';
+                fg.style.strokeDashoffset = CIRCUMFERENCE;
+                return;
+            }
+
+            const offset = CIRCUMFERENCE - (score / 100) * CIRCUMFERENCE;
+            fg.style.strokeDashoffset = offset;
+
+            let color, label, desc;
+            if (score >= 80) {
+                color = '#34c759';
+                label = '纯净';
+                desc = '该 IP 未发现明显风险特征';
+            } else if (score >= 50) {
+                color = '#ff9f0a';
+                label = '一般';
+                desc = '该 IP 存在部分风险特征，建议进一步验证';
+            } else {
+                color = '#ff3b30';
+                label = '风险';
+                desc = '该 IP 存在显著风险特征，请谨慎使用';
+            }
+
+            fg.style.stroke = color;
+            valueEl.textContent = score;
+            valueEl.style.color = color;
+            labelEl.textContent = label;
+            labelEl.style.color = color;
+            descEl.textContent = desc;
+        }
+
+        function renderInfo(data) {
+            const grid = document.getElementById('infoGrid');
+            if (!data) {
+                grid.innerHTML = '';
+                return;
+            }
+
+            const items = [
+                { label: 'IP 地址', value: data.ip || '—' },
+                { label: 'ISP', value: data.isp || data.org || '—' },
+                { label: '组织', value: data.org_name || data.org || '—' },
+                { label: '城市', value: [data.city, data.region, data.country_name].filter(Boolean).join(', ') || '—' },
+                { label: '国家', value: data.country_name || data.country || '—' },
+                { label: 'ASN', value: data.asn || data.as || '—' }
+            ];
+
+            grid.innerHTML = items.map(item => `
+                <div class="info-card">
+                    <div class="label">${item.label}</div>
+                    <div class="value">${item.value}</div>
+                </div>
+            `).join('');
+        }
+
+        function renderFlags(flags) {
+            const grid = document.getElementById('flagsGrid');
+            grid.innerHTML = flags.map(f => `
+                <div class="flag-item">
+                    <div class="flag-dot ${f.status}"></div>
+                    <div class="flag-name">${f.name}</div>
+                    <div class="flag-status">${f.text}</div>
+                </div>
+            `).join('');
+        }
+
+        function renderAuthorities(ip) {
+            const grid = document.getElementById('authorityGrid');
+            grid.innerHTML = AUTHORITIES.map(a => `
+                <a class="authority-card" href="${a.url}${encodeURIComponent(ip)}" target="_blank" rel="noopener noreferrer">
+                    <div>
+                        <div class="name">${a.name}</div>
+                        <div class="desc">${a.desc}</div>
+                    </div>
+                    <div class="arrow">›</div>
+                </a>
+            `).join('');
+        }
+
+        async function startCheck() {
+            const btn = document.getElementById('btnCheck');
+            const input = document.getElementById('ipInput');
+            const overlay = document.getElementById('loadingOverlay');
+            const loadingText = document.getElementById('loadingText');
+            const resultArea = document.getElementById('resultArea');
+
+            btn.disabled = true;
+            overlay.classList.add('active');
+            resultArea.classList.remove('visible');
+
+            let ip = input.value.trim();
+
+            if (!ip) {
+                loadingText.textContent = '正在检测您的 IP...';
+                const ipData = await fetchJSON('https://api.ipify.org?format=json');
+                if (ipData && ipData.ip) {
+                    ip = ipData.ip;
+                    input.value = ip;
+                } else {
+                    overlay.classList.remove('active');
+                    btn.disabled = false;
+                    alert('无法自动检测 IP，请手动输入');
+                    return;
+                }
+            }
+
+            loadingText.textContent = '正在查询 IP 信息...';
+
+            const ipapiData = await fetchJSON(`https://ipapi.co/${ip}/json/`);
+
+            let geoData = null;
+            if (ipapiData && !ipapiData.error) {
+                geoData = {
+                    ip: ip,
+                    isp: ipapiData.org || '',
+                    org: ipapiData.org || '',
+                    org_name: ipapiData.org || '',
+                    city: ipapiData.city || '',
+                    region: ipapiData.region || '',
+                    country: ipapiData.country_code || '',
+                    country_name: ipapiData.country_name || '',
+                    asn: ipapiData.asn || ''
+                };
+            }
+
+            const { score, flags } = calculatePurity(geoData);
+
+            renderScore(score);
+            renderInfo(geoData);
+            renderFlags(flags);
+            renderAuthorities(ip);
+
+            overlay.classList.remove('active');
+            resultArea.classList.add('visible');
+            btn.disabled = false;
+        }
+
+        init();
+    </script>
+</body>
+</html>
