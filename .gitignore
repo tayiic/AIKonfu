@@ -8,3 +8,11 @@ dist/
 .codex/
 .trae/
 docs/
+
+# Sync engine runtime artifacts
+.last-sync-manifest.json
+.sync-staging/
+.sync-progress.json
+
+# AI routing telemetry (runtime)
+.codex/runs/

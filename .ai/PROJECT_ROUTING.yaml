@@ -1,0 +1,14 @@
+schema_version: 1
+project: AIKonfu
+activated: "2026-09-10"
+routing_version: v1
+authority: "X:\\workspace\\AIStandard\\codex_standard\\universal\\ai_model_routing.md"
+risk_overrides:
+  static_content_publish: R2
+  seo_meta: R1
+required_review: []
+forbidden_auto_actions:
+  - '直接发布未预览的静态内容'
+task_examples:
+  - {desc: '文章内容更新', expect: 'C1/R1'}
+  - {desc: '站点结构变更', expect: 'C2/R2'}
