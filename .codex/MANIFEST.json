@@ -1,0 +1,214 @@
+{
+  "version": "3.7.0",
+  "codex_min_version": "0.105.0",
+  "description": "Codex Standard Harness - reusable Codex delivery workflow for complex projects",
+  "constitution_version": "26",
+  "constitution_tiers": {
+    "tier1_core": {
+      "description": "Core iron laws - always active",
+      "articles": [1, 2, 3, 4, 5, 6, 7, 8]
+    },
+    "tier2_engineering": {
+      "description": "Engineering standards - active for standard/full",
+      "articles": [9, 10, 11, 12, 13, 14, 15, 16]
+    },
+    "tier3_methodology": {
+      "description": "Methodology - active for full",
+      "articles": [17, 18, 19, 20, 21, 22, 23, 24, 25, 26]
+    }
+  },
+  "layers": {
+    "L0_universal": {
+      "description": "Universal, non-overridable guidance",
+      "files": [
+        "universal/constitution.md",
+        "universal/command_safety.md",
+        "universal/evidence_protocol.md",
+        "universal/file_safety.md",
+        "universal/git_protocol.md",
+        "universal/test_iron_law.md",
+        "universal/verification_protocol.md",
+        "universal/decision_protocol.md",
+        "universal/completion_protocol.md",
+        "universal/debugging_protocol.md",
+        "universal/context_engineering.md",
+        "universal/token_efficiency.md",
+        "universal/plan_as_context.md",
+        "universal/mcp_security.md",
+        "universal/global_constraints.md",
+        "universal/architecture_decision_protocol.md",
+        "universal/risk_management_protocol.md",
+        "universal/incident_response_protocol.md",
+        "universal/refactoring_protocol.md",
+        "universal/tech_debt_protocol.md",
+        "universal/cross_validation_protocol.md",
+        "universal/cross_discussion_protocol.md",
+        "universal/multi_model_setup.md"
+      ]
+    },
+    "L1_stacks": {
+      "description": "Stack-specific conventions",
+      "files": [
+        "stacks/python-fastapi.md",
+        "stacks/vue3-typescript.md",
+        "stacks/rust.md",
+        "stacks/nodejs.md",
+        "stacks/docker.md"
+      ]
+    },
+    "L2_project": {
+      "description": "Project-specific generated files",
+      "generated_files": [
+        "AGENTS.md",
+        ".codex/config.toml",
+        ".codex/agents/*.toml",
+        ".codex/rules/default.rules",
+        ".codex/workflows/*.md",
+        ".codex/protocols/*.md"
+      ]
+    }
+  },
+  "templates": {
+    "agents": "templates/agents/",
+    "workflows": "templates/workflows/",
+    "mcp": "templates/mcp/",
+    "config": "templates/config.toml.template",
+    "model_registry": "templates/model_registry.toml",
+    "agents_md": "templates/AGENTS.md.template",
+    "preset_schema": "templates/project-preset.schema.json"
+  },
+  "generators": {
+    "main": "generators/generate-project.ps1",
+    "rules": "rules/_gen_default3.ps1"
+  },
+  "rules": {
+    "spec": "rules/STANDARD_COMMAND_SPEC.md",
+    "default": "rules/default3.rules",
+    "generator": "rules/_gen_default3.ps1"
+  },
+  "workflow_helpers": [
+    "plan-template"
+  ],
+  "profiles": {
+    "minimal": {
+      "description": "Small projects, scripts, or focused bug work",
+      "constitution_tier": 1,
+      "agents": [
+        "implement-standard"
+      ],
+      "workflows": [
+        "fsm-lite"
+      ]
+    },
+    "standard": {
+      "description": "Team projects with regular delivery controls",
+      "constitution_tier": 2,
+      "agents": [
+        "precision-triage",
+        "product-challenger",
+        "design-reviewer",
+        "implement-standard",
+        "verify-triple-jump",
+        "debug-investigator",
+        "code-quality-reviewer"
+      ],
+      "workflows": [
+        "fsm-lite",
+        "fsm-10-stage",
+        "autoplan",
+        "context-handoff",
+        "debugging-workflow"
+      ]
+    },
+    "full": {
+      "description": "Enterprise-grade projects with full methodology and cross-model review",
+      "constitution_tier": 3,
+      "agents": [
+        "precision-triage",
+        "product-challenger",
+        "pm",
+        "architect",
+        "design-reviewer",
+        "implement-standard",
+        "integrate-reconciliation",
+        "verify-triple-jump",
+        "security-invariant",
+        "obs-perf-baseline",
+        "docs-distillation",
+        "final-gate-keeper",
+        "spec-reviewer",
+        "code-quality-reviewer",
+        "debug-investigator",
+        "cross-validator",
+        "cross-validator-third",
+        "red-team-adversary",
+        "discussion-judge"
+      ],
+      "workflows": [
+        "fsm-lite",
+        "fsm-10-stage",
+        "fsm-audit-gate",
+        "fsm-plan-spec",
+        "autoplan",
+        "context-handoff",
+        "debugging-workflow",
+        "ci-integration"
+      ]
+    }
+  },
+  "protocol_bundles": {
+    "tier1": [
+      "constitution",
+      "command_safety",
+      "evidence_protocol",
+      "file_safety",
+      "test_iron_law",
+      "verification_protocol"
+    ],
+    "tier2": [
+      "constitution",
+      "command_safety",
+      "evidence_protocol",
+      "file_safety",
+      "test_iron_law",
+      "verification_protocol",
+      "git_protocol",
+      "decision_protocol",
+      "completion_protocol",
+      "debugging_protocol",
+      "context_engineering",
+      "product_challenge_protocol",
+      "design_review_protocol",
+      "context_handoff_protocol"
+    ],
+    "tier3": [
+      "constitution",
+      "command_safety",
+      "evidence_protocol",
+      "file_safety",
+      "test_iron_law",
+      "verification_protocol",
+      "git_protocol",
+      "decision_protocol",
+      "completion_protocol",
+      "debugging_protocol",
+      "context_engineering",
+      "token_efficiency",
+      "plan_as_context",
+      "mcp_security",
+      "global_constraints",
+      "architecture_decision_protocol",
+      "risk_management_protocol",
+      "incident_response_protocol",
+      "refactoring_protocol",
+      "tech_debt_protocol",
+      "cross_validation_protocol",
+      "cross_discussion_protocol",
+      "multi_model_setup",
+      "product_challenge_protocol",
+      "design_review_protocol",
+      "browser_qa_protocol",
+      "context_handoff_protocol"
+    ]
+  }
+}

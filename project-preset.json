@@ -1,0 +1,39 @@
+{
+  "project_name": "aikonfu",
+  "description": "AIKonfu static web workspace for AI technology analysis and entrepreneurship content.",
+  "stacks": [
+    "nodejs"
+  ],
+  "runtime": {
+    "ports": {}
+  },
+  "boundaries": {
+    "scope": "Static-site workflow scaffolding, documentation sync, and repository governance only.",
+    "out_of_scope": [
+      "Brand/content strategy changes",
+      "Hosting decisions",
+      "Product feature assumptions"
+    ],
+    "protected_paths": [
+      "project-preset.json",
+      "logo/"
+    ]
+  },
+  "ides": [
+    "codex",
+    "claude_code",
+    "trae"
+  ],
+  "primary_ide": "codex",
+  "codex": {
+    "profile": "minimal",
+    "constitution_tier": 1
+  },
+  "standard_version": "3.8.1",
+  "sync": {
+    "source": "X:\\workspace\\AIStandard",
+    "role": "consumer",
+    "mode": "rules_only",
+    "protected_files": []
+  }
+}
